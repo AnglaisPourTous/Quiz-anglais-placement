@@ -410,7 +410,7 @@
         const EMAILJS_PUBLIC_KEY = 'Rq-ONxcvbJxVEO29A'; // À configurer
         const EMAILJS_SERVICE_ID = 'service_4vpwygs'; // À configurer
         const EMAILJS_TEMPLATE_ID = 'template_0va9rfs'; // À configurer
-        const ADMIN_EMAIL = 'contactanglaispourtous@gmail.com'; // Votre email
+        const ADMIN_EMAIL = 'contact.anglaispourtous@gmail.com'; // Votre email
         
         // Initialiser EmailJS
         if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'VOTRE_EMAILJS_PUBLIC_KEY') {
@@ -565,41 +565,72 @@
         let userData = {};
         
         // Descriptions des niveaux CECR
+        // Descriptions des niveaux CECR mises à jour avec sous-niveaux
         const levelDescriptions = {
             "A0": {
-                title: "Débutant absolu",
-                description: "Vous commencez à apprendre vos premiers mots en anglais. Vous pouvez comprendre et utiliser des expressions familières et quotidiennes ainsi que des énoncés très simples.",
+                title: "Beginner - Débutant absolu",
+                description: "Vous commencez à apprendre vos premiers mots en anglais. Vous pouvez comprendre et utiliser des expressions très familières et quotidiennes.",
                 example: "Coffee? (Café ?)"
             },
             "A1": {
-                title: "Élémentaire", 
+                title: "Elementary - Élémentaire", 
                 description: "Vous pouvez comprendre et utiliser des expressions familières et quotidiennes ainsi que des énoncés très simples qui visent à satisfaire des besoins concrets.",
                 example: "Want coffee with me? (Tu veux un café avec moi ?)"
             },
-            "A2": {
-                title: "Pré-intermédiaire",
-                description: "Vous pouvez communiquer lors de tâches simples et habituelles ne demandant qu'un échange d'informations simple et direct sur des sujets familiers.",
-                example: "Do you want to have coffee together? (Veux-tu prendre un café ensemble ?)"
+            "A2.1": {
+                title: "Pre-intermediate - Communication de base",
+                description: "Vous pouvez communiquer lors de tâches simples et habituelles. Vous maîtrisez les temps de base (présent, passé simple) et pouvez parler de vos expériences.",
+                example: "I went to the cinema yesterday. (Je suis allé au cinéma hier.)"
             },
-            "B1": {
-                title: "Intermédiaire",
-                description: "Vous pouvez comprendre les points essentiels quand un langage clair et standard est utilisé et s'il s'agit de sujets familiers concernant le travail, l'école, les loisirs, etc.",
-                example: "How about getting a coffee? (Que dirais-tu d'aller prendre un café ?)"
+            "A2.2": {
+                title: "Pre-intermediate - Passé et futur",
+                description: "Vous pouvez exprimer le futur et parler de projets. Vous commencez à utiliser le present perfect et pouvez décrire des expériences passées.",
+                example: "I'm going to visit my friend next week. (Je vais rendre visite à mon ami la semaine prochaine.)"
             },
-            "B2": {
-                title: "Intermédiaire-avancé",
+            "A2.3": {
+                title: "Pre-intermediate - Structures complexes",
+                description: "Vous maîtrisez les comparatifs et pouvez utiliser des phrases conditionnelles simples. Vous pouvez exprimer vos opinions de manière simple.",
+                example: "If it rains, we will stay home. (S'il pleut, nous resterons à la maison.)"
+            },
+            "B1.1": {
+                title: "Intermediate - Travail et études",
+                description: "Vous pouvez comprendre les points essentiels dans un contexte professionnel ou scolaire. Vous maîtrisez les temps complexes comme le futur antérieur.",
+                example: "By the time you arrive, I will have finished. (Quand tu arriveras, j'aurai terminé.)"
+            },
+            "B1.2": {
+                title: "Intermediate - Situations sociales",
+                description: "Vous pouvez interagir avec une certaine aisance dans des situations sociales variées. Vous utilisez le conditionnel et exprimez des regrets.",
+                example: "I wish I had more time to travel. (J'aimerais avoir plus de temps pour voyager.)"
+            },
+            "B1.3": {
+                title: "Intermediate - Grammaire complexe",
+                description: "Vous maîtrisez les gérondifs, les structures avec 'suggest' et les expressions de cause et conséquence.",
+                example: "Despite studying hard, he failed. (Malgré ses études assidues, il a échoué.)"
+            },
+            "B2.1": {
+                title: "Upper-intermediate - Contextes professionnels",
                 description: "Vous pouvez comprendre le contenu essentiel de sujets concrets ou abstraits dans un texte complexe, y compris une discussion technique dans votre spécialité.",
-                example: "Let's get a coffee, shall we? (Allons prendre un café, d'accord ?)"
+                example: "The company's profits have increased significantly. (Les bénéfices de l'entreprise ont considérablement augmenté.)"
             },
-            "C1": {
-                title: "Avancé", 
-                description: "Vous pouvez comprendre une grande gamme de textes longs et exigeants, ainsi que saisir des significations implicites.",
-                example: "Let's grab a coffee! (Allons prendre un café !)"
+            "B2.2": {
+                title: "Upper-intermediate - Concepts abstraits",
+                description: "Vous pouvez interagir avec un degré de spontanéité et d'aisance tel qu'une conversation avec un locuteur natif ne comportant de tension ni pour l'un ni pour l'autre.",
+                example: "She has a knack for languages. (Elle a un don pour les langues.)"
+            },
+            "B2.3": {
+                title: "Upper-intermediate - Structures avancées",
+                description: "Vous pouvez produire un discours clair et détaillé sur une grande gamme de sujets, exprimer un avis sur un sujet d'actualité et exposer les avantages et les inconvénients.",
+                example: "Owing to the weather conditions, the flight was delayed. (En raison des conditions météorologiques, le vol a été retardé.)"
+            },
+            "C1.1": {
+                title: "Advanced - Maîtrise professionnelle",
+                description: "Vous pouvez comprendre une grande gamme de textes longs et exigeants, ainsi que saisir des significations implicites. Vous utilisez un vocabulaire sophistiqué.",
+                example: "The committee reached a unanimous decision. (Le comité a pris une décision unanime.)"
             },
             "C2": {
-                title: "Maîtrise",
+                title: "Proficient - Maîtrise complète",
                 description: "Vous pouvez comprendre sans effort pratiquement tout ce que vous lisez ou entendez et vous exprimer spontanément, très couramment et de façon précise.",
-                example: "Coffee? (Usage contextuel parfait)"
+                example: "The novel's intricate narrative structure... (La structure narrative complexe du roman...)"
             }
         };
         
@@ -1102,13 +1133,19 @@ Système automatique Quiz Anglais
         }
         
         function determineLevel(score) {
-            // Logique de calcul du niveau basée sur le score
-            if (score <= 3) return "A0";
+            // Logique de calcul du niveau basée sur le score (25 questions, max ~140 points)
+            if (score <= 4) return "A0";
             if (score <= 8) return "A1";
-            if (score <= 15) return "A2";
-            if (score <= 23) return "B1";
-            if (score <= 32) return "B2";
-            if (score <= 40) return "C1";
+            if (score <= 18) return "A2.1";
+            if (score <= 28) return "A2.2";
+            if (score <= 38) return "A2.3";
+            if (score <= 53) return "B1.1";
+            if (score <= 68) return "B1.2";
+            if (score <= 83) return "B1.3";
+            if (score <= 98) return "B2.1";
+            if (score <= 113) return "B2.2";
+            if (score <= 128) return "B2.3";
+            if (score <= 135) return "C1.1";
             return "C2";
         }
         
@@ -1119,17 +1156,27 @@ Système automatique Quiz Anglais
             document.getElementById('navigation').style.display = 'none';
             document.getElementById('results').classList.add('show');
             
+            // Couleurs selon le niveau
+            let levelColor = '#28a745'; // Vert par défaut
+            if (level.startsWith('A')) levelColor = '#ffc107'; // Jaune pour A
+            if (level.startsWith('B')) levelColor = '#17a2b8'; // Bleu pour B  
+            if (level.startsWith('C')) levelColor = '#6f42c1'; // Violet pour C
+            
             // Afficher le niveau et la description
             const levelInfo = levelDescriptions[level];
+            const levelResult = document.getElementById('levelResult');
+            levelResult.style.background = `linear-gradient(135deg, ${levelColor} 0%, ${levelColor}dd 100%)`;
+            
             document.getElementById('finalLevel').textContent = `Niveau ${level}`;
             document.getElementById('levelTitle').textContent = levelInfo.title;
             document.getElementById('levelDescription').innerHTML = `
                 <h4>Votre niveau en détail :</h4>
                 <p>${levelInfo.description}</p>
                 <br>
-                <p><strong>Exemple d'expression :</strong> <em>"${levelInfo.example}"</em></p>
+                <p><strong>Exemple d'expression typique :</strong> <em>"${levelInfo.example}"</em></p>
                 <br>
-                <p><strong>Votre score :</strong> ${totalScore} points sur ${questions.reduce((sum, q) => sum + q.points, 0)} possibles</p>
+                <p><strong>Votre score :</strong> ${totalScore} points sur ${questions.reduce((sum, q) => sum + q.points, 0)} possibles (${Math.round((totalScore / questions.reduce((sum, q) => sum + q.points, 0)) * 100)}%)</p>
+                <p><strong>Questions répondues :</strong> ${questions.length}/25</p>
             `;
             
             // Faire défiler vers le haut
