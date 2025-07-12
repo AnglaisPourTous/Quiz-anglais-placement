@@ -357,11 +357,26 @@
                     <p>Nos conseillers pédagogiques vont vous contacter sous 24h pour vous proposer un parcours personnalisé adapté à votre niveau.</p>
                 </div>
                 
+                <!-- Bouton admin caché pour export Excel -->
+                <div id="adminPanel" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #ddd;">
+                    <h4>👨‍💼 Panneau Administrateur</h4>
+                    <button class="btn" onclick="exportAllToExcel()" style="background: #28a745; margin: 5px;">📊 Télécharger Excel</button>
+                    <button class="btn" onclick="exportResults()" style="background: #17a2b8; margin: 5px;">📄 Télécharger CSV</button>
+                    <button class="btn" onclick="console.table(getAllResults())" style="background: #6c757d; margin: 5px;">👁️ Voir Résultats</button>
+                    <button class="btn" onclick="clearAllResults()" style="background: #dc3545; margin: 5px;">🗑️ Effacer Tout</button>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        <strong>Raccourcis :</strong> Ctrl+Shift+E (Excel), Ctrl+Shift+C (CSV), Ctrl+Shift+R (Console), Ctrl+Shift+X (Effacer)
+                    </p>
+                </div>
+                
                 <button class="btn" onclick="restartQuiz()">Refaire le Quiz</button>
             </div>
         </div>
     </div>
 
+    <!-- SheetJS pour la génération Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <script>
         // Questions du quiz organisées par niveau CECR
         const questions = [
@@ -673,6 +688,9 @@
             // Déterminer le niveau
             const level = determineLevel(totalScore);
             
+            // Calculer la durée
+            const duration = Math.round((new Date().getTime() - new Date(userData.startTime).getTime()) / 60000);
+            
             // Sauvegarder les résultats
             const results = {
                 ...userData,
@@ -680,14 +698,119 @@
                 score: totalScore,
                 level: level,
                 completionTime: new Date().toISOString(),
-                questionsAnswered: questions.length
+                questionsAnswered: questions.length,
+                duration: duration
             };
             
-            // Sauvegarder dans localStorage (pour récupération)
+            // Sauvegarder dans localStorage
             saveResults(results);
+            
+            // Générer et télécharger Excel automatiquement
+            generateExcelReport();
             
             // Afficher les résultats
             showResults(level);
+        }
+        
+        function generateExcelReport() {
+            const results = getAllResults();
+            if (results.length === 0) return;
+            
+            // Créer un classeur Excel
+            const wb = XLSX.utils.book_new();
+            
+            // Feuille 1: Résumé des participants
+            const summaryData = [
+                ['Date', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Niveau CECR', 'Score', 'Points Max', 'Pourcentage', 'Durée (min)'],
+                ...results.map(result => [
+                    new Date(result.completionTime).toLocaleDateString('fr-FR'),
+                    result.firstName,
+                    result.lastName,
+                    result.email,
+                    result.phone || '',
+                    result.level,
+                    result.score,
+                    questions.reduce((sum, q) => sum + q.points, 0),
+                    Math.round((result.score / questions.reduce((sum, q) => sum + q.points, 0)) * 100) + '%',
+                    result.duration || 'N/A'
+                ])
+            ];
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, ws1, "Résumé Participants");
+            
+            // Feuille 2: Détails des réponses (dernier participant)
+            const lastResult = results[results.length - 1];
+            const detailsData = [
+                ['Question', 'Niveau', 'Réponse Donnée', 'Réponse Correcte', 'Résultat', 'Points'],
+                ...questions.map((q, i) => [
+                    q.question,
+                    q.level,
+                    q.options[lastResult.answers[i]] || 'Non répondu',
+                    q.options[q.correct],
+                    lastResult.answers[i] === q.correct ? 'Correct' : 'Incorrect',
+                    lastResult.answers[i] === q.correct ? q.points : 0
+                ])
+            ];
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(detailsData);
+            XLSX.utils.book_append_sheet(wb, ws2, "Détails Dernier Quiz");
+            
+            // Feuille 3: Statistiques par niveau
+            const levelStats = {};
+            results.forEach(result => {
+                if (!levelStats[result.level]) {
+                    levelStats[result.level] = { count: 0, totalScore: 0 };
+                }
+                levelStats[result.level].count++;
+                levelStats[result.level].totalScore += result.score;
+            });
+            
+            const statsData = [
+                ['Niveau CECR', 'Nombre de Participants', 'Score Moyen', 'Pourcentage'],
+                ...Object.entries(levelStats).map(([level, stats]) => [
+                    level,
+                    stats.count,
+                    Math.round(stats.totalScore / stats.count),
+                    Math.round((stats.count / results.length) * 100) + '%'
+                ])
+            ];
+            
+            const ws3 = XLSX.utils.aoa_to_sheet(statsData);
+            XLSX.utils.book_append_sheet(wb, ws3, "Statistiques");
+            
+            // Télécharger le fichier
+            const fileName = `Quiz_Anglais_${new Date().toISOString().slice(0,10)}_${results.length}participants.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            
+            // Notification
+            showNotification('📊 Fichier Excel généré et téléchargé !', 'success');
+        }
+        
+        function showNotification(message, type) {
+            // Créer une notification temporaire
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                transition: opacity 0.3s;
+                ${type === 'success' ? 'background: #28a745;' : 'background: #ffc107; color: #856404;'}
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Supprimer après 5 secondes
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 5000);
         }
         
         function determineLevel(score) {
@@ -765,7 +888,12 @@
             return JSON.parse(localStorage.getItem('quizResults') || '[]');
         }
         
-        // Fonction pour exporter les résultats en CSV
+        // Fonction pour générer Excel à tout moment (bouton admin)
+        function exportAllToExcel() {
+            generateExcelReport();
+        }
+        
+        // Fonction pour exporter en CSV simple (backup)
         function exportResults() {
             const results = getAllResults();
             if (results.length === 0) {
@@ -777,8 +905,7 @@
             const csvContent = [
                 headers.join(','),
                 ...results.map(result => {
-                    const duration = new Date(result.completionTime).getTime() - new Date(result.startTime).getTime();
-                    const durationMinutes = Math.round(duration / 60000);
+                    const duration = result.duration || 'N/A';
                     return [
                         new Date(result.completionTime).toLocaleDateString('fr-FR'),
                         result.firstName,
@@ -787,8 +914,8 @@
                         result.phone || '',
                         result.level,
                         result.score,
-                        durationMinutes + ' min'
-                    ].join(',');
+                        duration + (typeof duration === 'number' ? ' min' : '')
+                    ].map(field => `"${field}"`).join(',');
                 })
             ].join('\n');
             
@@ -803,10 +930,69 @@
             document.body.removeChild(link);
         }
         
-        // Raccourci clavier pour exporter (pour l'administrateur)
+        // Fonction pour vider toutes les données (reset)
+        function clearAllResults() {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer TOUS les résultats ? Cette action est irréversible.')) {
+                localStorage.removeItem('quizResults');
+                showNotification('🗑️ Tous les résultats ont été supprimés.', 'warning');
+            }
+        }
+        
+        // Variables pour l'accès administrateur
+        let adminClicks = 0;
+        let adminTimeout;
+        
+        // Fonction pour activer le mode admin (triple-clic sur le titre)
+        function activateAdminMode() {
+            adminClicks++;
+            clearTimeout(adminTimeout);
+            
+            if (adminClicks === 3) {
+                const password = prompt('🔐 Code administrateur :');
+                if (password === 'admin123') { // Changez ce mot de passe !
+                    document.getElementById('adminPanel').style.display = 'block';
+                    showNotification('👨‍💼 Mode administrateur activé !', 'success');
+                } else if (password !== null) {
+                    showNotification('❌ Code incorrect !', 'warning');
+                }
+                adminClicks = 0;
+            } else {
+                adminTimeout = setTimeout(() => {
+                    adminClicks = 0;
+                }, 1000);
+            }
+        }
+        
+        // Ajouter l'événement de triple-clic sur le titre principal
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.header h1');
+            if (header) {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', activateAdminMode);
+                header.title = 'Triple-clic pour accès admin';
+            }
+        });
         document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && e.key === 'E') {
-                exportResults();
+            if (e.ctrlKey && e.shiftKey) {
+                switch(e.key) {
+                    case 'E': // Ctrl+Shift+E = Export Excel
+                        e.preventDefault();
+                        exportAllToExcel();
+                        break;
+                    case 'C': // Ctrl+Shift+C = Export CSV
+                        e.preventDefault();
+                        exportResults();
+                        break;
+                    case 'R': // Ctrl+Shift+R = Voir tous les résultats
+                        e.preventDefault();
+                        console.table(getAllResults());
+                        alert(`📊 ${getAllResults().length} résultats dans la console (F12)`);
+                        break;
+                    case 'X': // Ctrl+Shift+X = Clear all
+                        e.preventDefault();
+                        clearAllResults();
+                        break;
+                }
             }
         });
     </script>
