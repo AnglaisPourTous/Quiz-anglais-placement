@@ -322,6 +322,9 @@
                 </div>
                 
                 <button class="btn" onclick="startQuiz()">Commencer le Quiz</button>
+                
+                <!-- Bouton admin discret sur la page d'accueil -->
+                <button onclick="toggleAdminPanel()" style="background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; margin-top: 15px; cursor: pointer; opacity: 0.7;">⚙️ Admin</button>
             </div>
             
             <!-- Barre de progression -->
@@ -356,39 +359,42 @@
                     <h4>🎯 Prochaine étape</h4>
                     <p>Nos conseillers pédagogiques vont vous contacter sous 24h pour vous proposer un parcours personnalisé adapté à votre niveau.</p>
                 </div>
-                
-                <!-- Panneau admin pour envoi Excel par email -->
-                <div id="adminPanel" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #ddd;">
-                    <h4>👨‍💼 Panneau Administrateur</h4>
-                    <div style="margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
-                        <strong>📊 Résultats stockés :</strong> <span id="resultsCount">0</span> participant(s)
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <button class="btn" onclick="sendExcelByEmail()" style="background: #28a745; margin: 5px; font-size: 16px; padding: 12px 20px;">
-                            📧 Envoyer Excel par Email
-                        </button>
-                        <button class="btn" onclick="testEmailConnection()" style="background: #17a2b8; margin: 5px;">🔗 Tester Email</button>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <button class="btn" onclick="exportAllToExcel()" style="background: #007bff; margin: 5px;">💾 Télécharger Excel</button>
-                        <button class="btn" onclick="exportResults()" style="background: #6c757d; margin: 5px;">📄 Télécharger CSV</button>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <button class="btn" onclick="console.table(getAllResults())" style="background: #ffc107; color: #000; margin: 5px;">👁️ Voir Résultats</button>
-                        <button class="btn" onclick="clearAllResults()" style="background: #dc3545; margin: 5px;">🗑️ Effacer Tout</button>
-                        <button class="btn" onclick="restartQuiz()" style="background: #6f42c1; margin: 5px;">🔄 Nouveau Quiz</button>
-                    </div>
-                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>Status Email :</strong> 
-                        <span id="emailStatus" style="color: #dc3545;">❌ Non configuré</span>
-                    </p>
-                    <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
-                        <strong>Email de réception :</strong> <code id="adminEmailDisplay">Non configuré</code>
-                    </p>
-                    <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
-                        <strong>Raccourcis :</strong> Ctrl+Shift+S (Envoyer Excel), Ctrl+Shift+E (Export), Ctrl+Shift+T (Test)
-                    </p>
+            </div>
+            
+            <!-- Panneau admin accessible depuis n'importe où -->
+            <div id="adminPanel" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #ddd;">
+                <h4>👨‍💼 Panneau Administrateur</h4>
+                <div style="margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
+                    <strong>📊 Résultats stockés :</strong> <span id="resultsCount">0</span> participant(s)
                 </div>
+                <div style="margin-bottom: 10px;">
+                    <button class="btn" onclick="testEmailConnection()" style="background: #28a745; margin: 5px; font-size: 16px; padding: 12px 20px;">
+                        🔗 Tester Email
+                    </button>
+                    <button class="btn" onclick="sendExcelByEmail()" style="background: #17a2b8; margin: 5px;">📧 Envoyer Excel</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <button class="btn" onclick="exportAllToExcel()" style="background: #007bff; margin: 5px;">💾 Télécharger Excel</button>
+                    <button class="btn" onclick="exportResults()" style="background: #6c757d; margin: 5px;">📄 Télécharger CSV</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <button class="btn" onclick="console.table(getAllResults())" style="background: #ffc107; color: #000; margin: 5px;">👁️ Voir Résultats</button>
+                    <button class="btn" onclick="clearAllResults()" style="background: #dc3545; margin: 5px;">🗑️ Effacer Tout</button>
+                    <button class="btn" onclick="restartQuiz()" style="background: #6f42c1; margin: 5px;">🔄 Nouveau Quiz</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <button class="btn" onclick="hideAdminPanel()" style="background: #6c757d; margin: 5px;">👁️‍🗨️ Masquer Panneau</button>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    <strong>Status Email :</strong> 
+                    <span id="emailStatus" style="color: #dc3545;">❌ Non configuré</span>
+                </p>
+                <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
+                    <strong>Email de réception :</strong> <code id="adminEmailDisplay">Non configuré</code>
+                </p>
+                <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
+                    <strong>Raccourcis :</strong> Ctrl+Shift+S (Envoyer Excel), Ctrl+Shift+E (Export), Ctrl+Shift+T (Test)
+                </p>
             </div>
         </div>
     </div>
@@ -401,10 +407,10 @@
     
     <script>
         // Configuration EmailJS pour envoi Excel
-        const EMAILJS_PUBLIC_KEY = 'Rq-ONxcvbJxVEO29A'; // À configurer
-        const EMAILJS_SERVICE_ID = 'service_4vpwygs'; // À configurer
-        const EMAILJS_TEMPLATE_ID = 'template_0va9rfs'; // À configurer
-        const ADMIN_EMAIL = 'contact.anglaispourtous@gmail.com'; // Votre email
+        const EMAILJS_PUBLIC_KEY = 'VOTRE_EMAILJS_PUBLIC_KEY'; // À configurer
+        const EMAILJS_SERVICE_ID = 'VOTRE_SERVICE_ID'; // À configurer
+        const EMAILJS_TEMPLATE_ID = 'VOTRE_TEMPLATE_ID'; // À configurer
+        const ADMIN_EMAIL = 'votre-email@exemple.com'; // Votre email
         
         // Initialiser EmailJS
         if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'VOTRE_EMAILJS_PUBLIC_KEY') {
@@ -1261,9 +1267,23 @@ Système automatique Quiz Anglais
             }
         }
         
-        // Variables pour l'accès administrateur
-        let adminClicks = 0;
-        let adminTimeout;
+        // Fonction simple pour activer le panneau admin
+        function toggleAdminPanel() {
+            const password = prompt('🔐 Code administrateur :');
+            if (password === 'admin123') {
+                document.getElementById('adminPanel').style.display = 'block';
+                updateEmailStatus();
+                showNotification('👨‍💼 Mode administrateur activé !', 'success');
+            } else if (password !== null) {
+                showNotification('❌ Code incorrect !', 'warning');
+            }
+        }
+        
+        // Fonction pour masquer le panneau admin
+        function hideAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'none';
+            showNotification('👨‍💼 Panneau admin masqué', 'success');
+        }
         
         // Fonction pour vérifier le statut Email
         function updateEmailStatus() {
@@ -1312,14 +1332,9 @@ Système automatique Quiz Anglais
             }
         }
         
-        // Ajouter l'événement de triple-clic sur le titre principal
+        // Ajouter l'événement de clic simple au bouton (plus besoin de triple-clic)
         document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('.header h1');
-            if (header) {
-                header.style.cursor = 'pointer';
-                header.addEventListener('click', activateAdminMode);
-                header.title = 'Triple-clic pour accès admin';
-            }
+            console.log('Quiz chargé - Bouton admin disponible');
         });
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey) {
