@@ -357,19 +357,38 @@
                     <p>Nos conseillers pédagogiques vont vous contacter sous 24h pour vous proposer un parcours personnalisé adapté à votre niveau.</p>
                 </div>
                 
-                <!-- Bouton admin caché pour export Excel -->
+                <!-- Panneau admin pour envoi Excel par email -->
                 <div id="adminPanel" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #ddd;">
                     <h4>👨‍💼 Panneau Administrateur</h4>
-                    <button class="btn" onclick="exportAllToExcel()" style="background: #28a745; margin: 5px;">📊 Télécharger Excel</button>
-                    <button class="btn" onclick="exportResults()" style="background: #17a2b8; margin: 5px;">📄 Télécharger CSV</button>
-                    <button class="btn" onclick="console.table(getAllResults())" style="background: #6c757d; margin: 5px;">👁️ Voir Résultats</button>
-                    <button class="btn" onclick="clearAllResults()" style="background: #dc3545; margin: 5px;">🗑️ Effacer Tout</button>
+                    <div style="margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
+                        <strong>📊 Résultats stockés :</strong> <span id="resultsCount">0</span> participant(s)
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn" onclick="sendExcelByEmail()" style="background: #28a745; margin: 5px; font-size: 16px; padding: 12px 20px;">
+                            📧 Envoyer Excel par Email
+                        </button>
+                        <button class="btn" onclick="testEmailConnection()" style="background: #17a2b8; margin: 5px;">🔗 Tester Email</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn" onclick="exportAllToExcel()" style="background: #007bff; margin: 5px;">💾 Télécharger Excel</button>
+                        <button class="btn" onclick="exportResults()" style="background: #6c757d; margin: 5px;">📄 Télécharger CSV</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn" onclick="console.table(getAllResults())" style="background: #ffc107; color: #000; margin: 5px;">👁️ Voir Résultats</button>
+                        <button class="btn" onclick="clearAllResults()" style="background: #dc3545; margin: 5px;">🗑️ Effacer Tout</button>
+                        <button class="btn" onclick="restartQuiz()" style="background: #6f42c1; margin: 5px;">🔄 Nouveau Quiz</button>
+                    </div>
                     <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>Raccourcis :</strong> Ctrl+Shift+E (Excel), Ctrl+Shift+C (CSV), Ctrl+Shift+R (Console), Ctrl+Shift+X (Effacer)
+                        <strong>Status Email :</strong> 
+                        <span id="emailStatus" style="color: #dc3545;">❌ Non configuré</span>
+                    </p>
+                    <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
+                        <strong>Email de réception :</strong> <code id="adminEmailDisplay">Non configuré</code>
+                    </p>
+                    <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
+                        <strong>Raccourcis :</strong> Ctrl+Shift+S (Envoyer Excel), Ctrl+Shift+E (Export), Ctrl+Shift+T (Test)
                     </p>
                 </div>
-                
-                <button class="btn" onclick="restartQuiz()">Refaire le Quiz</button>
             </div>
         </div>
     </div>
@@ -377,7 +396,21 @@
     <!-- SheetJS pour la génération Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
+    <!-- EmailJS pour l'envoi d'emails -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <script>
+        // Configuration EmailJS pour envoi Excel
+        const EMAILJS_PUBLIC_KEY = 'VOTRE_EMAILJS_PUBLIC_KEY'; // À configurer
+        const EMAILJS_SERVICE_ID = 'VOTRE_SERVICE_ID'; // À configurer
+        const EMAILJS_TEMPLATE_ID = 'VOTRE_TEMPLATE_ID'; // À configurer
+        const ADMIN_EMAIL = 'votre-email@exemple.com'; // Votre email
+        
+        // Initialiser EmailJS
+        if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'VOTRE_EMAILJS_PUBLIC_KEY') {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+        
         // Questions du quiz organisées par niveau CECR
         const questions = [
             // A0-A1 (Débutant absolu/Élémentaire)
@@ -691,25 +724,274 @@
             // Calculer la durée
             const duration = Math.round((new Date().getTime() - new Date(userData.startTime).getTime()) / 60000);
             
+            // Préparer les détails des réponses pour Google Sheets
+            const detailedAnswers = questions.map((q, i) => {
+                const userAnswer = userAnswers[i];
+                const isCorrect = userAnswer === q.correct;
+                return {
+                    question: q.question,
+                    level: q.level,
+                    userAnswer: q.options[userAnswer] || 'Non répondu',
+                    correctAnswer: q.options[q.correct],
+                    isCorrect: isCorrect,
+                    pointsEarned: isCorrect ? q.points : 0
+                };
+            });
+            
             // Sauvegarder les résultats
             const results = {
                 ...userData,
                 answers: userAnswers,
+                detailedAnswers: detailedAnswers,
                 score: totalScore,
+                maxScore: questions.reduce((sum, q) => sum + q.points, 0),
+                percentage: Math.round((totalScore / questions.reduce((sum, q) => sum + q.points, 0)) * 100),
                 level: level,
                 completionTime: new Date().toISOString(),
                 questionsAnswered: questions.length,
                 duration: duration
             };
             
-            // Sauvegarder dans localStorage
+            // Sauvegarder dans localStorage (backup local)
             saveResults(results);
             
-            // Générer et télécharger Excel automatiquement
-            generateExcelReport();
+            // Envoyer automatiquement par email à l'administrateur
+            sendResultsByEmail(results);
             
             // Afficher les résultats
             showResults(level);
+        }
+        
+        function sendResultsByEmail(results) {
+            // Vérifier la configuration EmailJS
+            if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'VOTRE_EMAILJS_PUBLIC_KEY') {
+                console.log('EmailJS non configuré. Données sauvegardées localement seulement.');
+                showNotification('📊 Résultats sauvegardés localement. Configuration email requise pour envoi automatique.', 'warning');
+                return;
+            }
+            
+            // Préparer un résumé des réponses pour l'email
+            const answersText = results.detailedAnswers.map((answer, i) => 
+                `Question ${i+1} (${answer.level}): ${answer.question}\n` +
+                `Réponse donnée: ${answer.userAnswer}\n` +
+                `Réponse correcte: ${answer.correctAnswer}\n` +
+                `Résultat: ${answer.isCorrect ? 'Correct ✓' : 'Incorrect ✗'}\n` +
+                `Points obtenus: ${answer.pointsEarned}/${questions[i].points}\n`
+            ).join('\n' + '='.repeat(50) + '\n');
+            
+            // Préparer l'email individuel pour ce participant
+            const emailParams = {
+                to_email: ADMIN_EMAIL,
+                subject: `🎓 Nouveau résultat quiz: ${results.firstName} ${results.lastName} - Niveau ${results.level}`,
+                participant_name: `${results.firstName} ${results.lastName}`,
+                participant_email: results.email,
+                participant_phone: results.phone || 'Non renseigné',
+                participant_level: results.level,
+                participant_score: `${results.score}/${results.maxScore} points`,
+                participant_percentage: `${results.percentage}%`,
+                participant_duration: `${results.duration} minutes`,
+                test_date: new Date().toLocaleDateString('fr-FR'),
+                test_time: new Date().toLocaleTimeString('fr-FR'),
+                detailed_answers: answersText,
+                message: `
+Nouveau participant au quiz de placement d'anglais :
+
+👤 INFORMATIONS PARTICIPANT
+Nom complet : ${results.firstName} ${results.lastName}
+Email : ${results.email}
+Téléphone : ${results.phone || 'Non renseigné'}
+
+📊 RÉSULTATS
+Niveau CECR : ${results.level}
+Score : ${results.score}/${results.maxScore} points (${results.percentage}%)
+Durée du test : ${results.duration} minutes
+Date/Heure : ${new Date().toLocaleString('fr-FR')}
+
+📝 DÉTAILS DES RÉPONSES
+${answersText}
+
+Cette évaluation a été réalisée via le quiz en ligne automatique.
+                `
+            };
+            
+            // Envoyer l'email automatiquement
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
+                .then(function(response) {
+                    console.log('Email envoyé automatiquement !', response);
+                    showNotification('✅ Résultats envoyés par email automatiquement !', 'success');
+                }, function(error) {
+                    console.error('Erreur envoi email automatique:', error);
+                    showNotification('⚠️ Erreur envoi email. Résultats sauvegardés localement.', 'warning');
+                });
+        }
+        
+        function sendExcelByEmail() {
+            const results = getAllResults();
+            if (results.length === 0) {
+                alert('❌ Aucun résultat à envoyer.');
+                return;
+            }
+            
+            // Vérifier la configuration EmailJS
+            if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'VOTRE_EMAILJS_PUBLIC_KEY') {
+                alert('❌ EmailJS non configuré !');
+                return;
+            }
+            
+            showNotification('📊 Génération de l\'Excel en cours...', 'warning');
+            
+            // Générer l'Excel
+            const excelBlob = generateExcelBlob(results);
+            
+            // Convertir le blob en base64
+            const reader = new FileReader();
+            reader.onload = function() {
+                const base64Data = reader.result.split(',')[1]; // Enlever le préfixe data:...
+                
+                // Préparer l'email avec l'Excel en pièce jointe
+                const emailParams = {
+                    to_email: ADMIN_EMAIL,
+                    subject: `📊 Export Excel Quiz Anglais - ${results.length} participants - ${new Date().toLocaleDateString('fr-FR')}`,
+                    message: `
+Voici l'export Excel consolidé avec tous les résultats du quiz de placement d'anglais.
+
+📊 RÉSUMÉ DE L'EXPORT :
+- Nombre total de participants : ${results.length}
+- Période couverte : du ${new Date(results[0].completionTime).toLocaleDateString('fr-FR')} au ${new Date(results[results.length-1].completionTime).toLocaleDateString('fr-FR')}
+- Date de génération : ${new Date().toLocaleString('fr-FR')}
+
+📈 RÉPARTITION PAR NIVEAU :
+${generateLevelSummary(results)}
+
+Le fichier Excel contient 3 feuilles :
+1. Résumé de tous les participants
+2. Statistiques par niveau  
+3. Détails des réponses (10 derniers)
+
+Cordialement,
+Système automatique Quiz Anglais
+                    `,
+                    attachment_name: `Quiz_Anglais_Export_${new Date().toISOString().slice(0,10)}_${results.length}participants.xlsx`,
+                    attachment_data: base64Data
+                };
+                
+                // Envoyer l'email
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
+                    .then(function(response) {
+                        console.log('Excel envoyé par email !', response);
+                        showNotification('✅ Excel envoyé par email avec succès !', 'success');
+                        
+                        // Optionnel : Vider les résultats après envoi
+                        if (confirm('📧 Excel envoyé ! Voulez-vous effacer les résultats locaux de ce navigateur admin ?')) {
+                            clearAllResults();
+                        }
+                    }, function(error) {
+                        console.error('Erreur envoi email:', error);
+                        showNotification('❌ Erreur lors de l\'envoi email.', 'warning');
+                        alert('Erreur : ' + JSON.stringify(error));
+                    });
+            };
+            
+            reader.readAsDataURL(excelBlob);
+        }
+        
+        function generateExcelBlob(results) {
+            // Créer un classeur Excel
+            const wb = XLSX.utils.book_new();
+            
+            // Feuille 1: Résumé des participants
+            const summaryData = [
+                ['Date', 'Heure', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Niveau CECR', 'Score', 'Points Max', 'Pourcentage', 'Durée (min)'],
+                ...results.map(result => [
+                    new Date(result.completionTime).toLocaleDateString('fr-FR'),
+                    new Date(result.completionTime).toLocaleTimeString('fr-FR'),
+                    result.firstName,
+                    result.lastName,
+                    result.email,
+                    result.phone || '',
+                    result.level,
+                    result.score,
+                    result.maxScore || questions.reduce((sum, q) => sum + q.points, 0),
+                    result.percentage || Math.round((result.score / questions.reduce((sum, q) => sum + q.points, 0)) * 100) + '%',
+                    result.duration || 'N/A'
+                ])
+            ];
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+            
+            // Ajuster la largeur des colonnes
+            ws1['!cols'] = [
+                {wch: 12}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 25}, 
+                {wch: 15}, {wch: 10}, {wch: 8}, {wch: 10}, {wch: 12}, {wch: 10}
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, ws1, "Résumé Participants");
+            
+            // Feuille 2: Statistiques par niveau
+            const levelStats = {};
+            results.forEach(result => {
+                if (!levelStats[result.level]) {
+                    levelStats[result.level] = { count: 0, totalScore: 0, emails: [] };
+                }
+                levelStats[result.level].count++;
+                levelStats[result.level].totalScore += result.score;
+                levelStats[result.level].emails.push(result.email);
+            });
+            
+            const statsData = [
+                ['Niveau CECR', 'Nombre de Participants', 'Score Moyen', 'Pourcentage du Total'],
+                ...Object.entries(levelStats).map(([level, stats]) => [
+                    level,
+                    stats.count,
+                    Math.round(stats.totalScore / stats.count),
+                    Math.round((stats.count / results.length) * 100) + '%'
+                ])
+            ];
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(statsData);
+            XLSX.utils.book_append_sheet(wb, ws2, "Statistiques");
+            
+            // Feuille 3: Détails des réponses (optionnel, pour les 10 derniers)
+            if (results.length > 0) {
+                const lastResults = results.slice(-10); // 10 derniers
+                const detailsData = [
+                    ['Participant', 'Question', 'Niveau Q.', 'Réponse Donnée', 'Réponse Correcte', 'Résultat', 'Points']
+                ];
+                
+                lastResults.forEach(result => {
+                    if (result.detailedAnswers) {
+                        result.detailedAnswers.forEach((answer, i) => {
+                            detailsData.push([
+                                `${result.firstName} ${result.lastName}`,
+                                answer.question || `Question ${i+1}`,
+                                answer.level || questions[i]?.level || '',
+                                answer.userAnswer || 'Non répondu',
+                                answer.correctAnswer || questions[i]?.options[questions[i]?.correct] || '',
+                                answer.isCorrect ? 'Correct' : 'Incorrect',
+                                answer.pointsEarned || 0
+                            ]);
+                        });
+                    }
+                });
+                
+                const ws3 = XLSX.utils.aoa_to_sheet(detailsData);
+                XLSX.utils.book_append_sheet(wb, ws3, "Détails Réponses");
+            }
+            
+            // Convertir en blob
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        }
+        
+        function generateLevelSummary(results) {
+            const levelStats = {};
+            results.forEach(result => {
+                levelStats[result.level] = (levelStats[result.level] || 0) + 1;
+            });
+            
+            return Object.entries(levelStats)
+                .map(([level, count]) => `- ${level}: ${count} participant${count > 1 ? 's' : ''}`)
+                .join('\n');
         }
         
         function generateExcelReport() {
@@ -888,9 +1170,50 @@
             return JSON.parse(localStorage.getItem('quizResults') || '[]');
         }
         
+        // Fonction pour tester l'envoi d'email
+        function testEmailConnection() {
+            if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'VOTRE_EMAILJS_PUBLIC_KEY') {
+                alert('❌ EmailJS non configuré !');
+                return;
+            }
+            
+            const testParams = {
+                to_email: ADMIN_EMAIL,
+                subject: 'Test EmailJS - Quiz Anglais',
+                message: `Test de connexion EmailJS effectué le ${new Date().toLocaleString('fr-FR')}.\n\nSi vous recevez cet email, la configuration fonctionne !`,
+                attachment_name: '',
+                attachment_data: ''
+            };
+            
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, testParams)
+                .then(function(response) {
+                    alert('✅ Test envoyé ! Vérifiez votre boîte email.');
+                    showNotification('📧 Test envoyé par email', 'success');
+                }, function(error) {
+                    alert('❌ Erreur lors du test : ' + JSON.stringify(error));
+                    console.error('Erreur test:', error);
+                });
+        }
+        
         // Fonction pour générer Excel à tout moment (bouton admin)
         function exportAllToExcel() {
-            generateExcelReport();
+            const results = getAllResults();
+            if (results.length === 0) {
+                alert('❌ Aucun résultat à exporter.');
+                return;
+            }
+            
+            const excelBlob = generateExcelBlob(results);
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(excelBlob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Quiz_Anglais_${new Date().toISOString().slice(0,10)}_${results.length}participants.xlsx`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('📊 Excel téléchargé !', 'success');
         }
         
         // Fonction pour exporter en CSV simple (backup)
@@ -942,6 +1265,31 @@
         let adminClicks = 0;
         let adminTimeout;
         
+        // Fonction pour vérifier le statut Email
+        function updateEmailStatus() {
+            const statusElement = document.getElementById('emailStatus');
+            const emailElement = document.getElementById('adminEmailDisplay');
+            const countElement = document.getElementById('resultsCount');
+            
+            if (statusElement) {
+                if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'VOTRE_EMAILJS_PUBLIC_KEY') {
+                    statusElement.innerHTML = '✅ Configuré';
+                    statusElement.style.color = '#28a745';
+                } else {
+                    statusElement.innerHTML = '❌ Non configuré';
+                    statusElement.style.color = '#dc3545';
+                }
+            }
+            
+            if (emailElement) {
+                emailElement.textContent = ADMIN_EMAIL !== 'votre-email@exemple.com' ? ADMIN_EMAIL : 'Non configuré';
+            }
+            
+            if (countElement) {
+                countElement.textContent = getAllResults().length;
+            }
+        }
+        
         // Fonction pour activer le mode admin (triple-clic sur le titre)
         function activateAdminMode() {
             adminClicks++;
@@ -951,6 +1299,7 @@
                 const password = prompt('🔐 Code administrateur :');
                 if (password === 'admin123') { // Changez ce mot de passe !
                     document.getElementById('adminPanel').style.display = 'block';
+                    updateEmailStatus(); // Mettre à jour le statut
                     showNotification('👨‍💼 Mode administrateur activé !', 'success');
                 } else if (password !== null) {
                     showNotification('❌ Code incorrect !', 'warning');
