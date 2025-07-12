@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Placement - Cours d'Anglais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .quiz-content {
+            padding: 40px;
+        }
+        
+        .welcome-screen {
+            text-align: center;
+        }
+        
+        .welcome-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .welcome-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .question-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .question h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .level-indicator {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .option input[type="radio"] {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .results {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .level-result {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .level-result h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .level-description {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .level-description h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .question-counter {
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .contact-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .contact-info h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .quiz-content {
+                padding: 30px 20px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Quiz de Placement</h1>
+            <p>Évaluez votre niveau d'anglais en quelques minutes</p>
+        </div>
+        
+        <div class="quiz-content">
+            <!-- Écran d'accueil -->
+            <div id="welcome" class="welcome-screen">
+                <h2>Bienvenue !</h2>
+                <p>Ce quiz vous permettra de déterminer votre niveau d'anglais selon le Cadre Européen Commun de Référence (CECR). Il ne vous prendra que 10-15 minutes.</p>
+                
+                <div class="form-group">
+                    <label for="firstName">Prénom *</label>
+                    <input type="text" id="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Nom *</label>
+                    <input type="text" id="lastName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="tel" id="phone">
+                </div>
+                
+                <button class="btn" onclick="startQuiz()">Commencer le Quiz</button>
+            </div>
+            
+            <!-- Barre de progression -->
+            <div id="progressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <!-- Questions du quiz -->
+            <div id="quizContainer" style="display: none;">
+                <!-- Les questions seront générées dynamiquement -->
+            </div>
+            
+            <!-- Navigation -->
+            <div id="navigation" style="display: none;" class="navigation">
+                <button class="btn" id="prevBtn" onclick="previousQuestion()">← Précédent</button>
+                <span class="question-counter" id="questionCounter"></span>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()">Suivant →</button>
+            </div>
+            
+            <!-- Résultats -->
+            <div id="results" class="results">
+                <div class="level-result" id="levelResult">
+                    <h2 id="finalLevel"></h2>
+                    <p id="levelTitle"></p>
+                </div>
+                
+                <div class="level-description" id="levelDescription"></div>
+                
+                <div class="contact-info">
+                    <h4>🎯 Prochaine étape</h4>
+                    <p>Nos conseillers pédagogiques vont vous contacter sous 24h pour vous proposer un parcours personnalisé adapté à votre niveau.</p>
+                </div>
+                
+                <button class="btn" onclick="restartQuiz()">Refaire le Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions du quiz organisées par niveau CECR
+        const questions = [
+            // A0-A1 (Débutant absolu/Élémentaire)
+            {
+                level: "A0-A1",
+                question: "Comment dit-on 'Bonjour' en anglais ?",
+                options: ["Good morning", "Good night", "Good afternoon", "Goodbye"],
+                correct: 0,
+                points: 1
+            },
+            {
+                level: "A0-A1", 
+                question: "Complétez : 'My name __ John'",
+                options: ["am", "is", "are", "be"],
+                correct: 1,
+                points: 1
+            },
+            {
+                level: "A1",
+                question: "Quelle est la bonne question pour demander l'âge ?",
+                options: ["How old you are?", "What is your age?", "How old are you?", "How many years do you have?"],
+                correct: 2,
+                points: 2
+            },
+            {
+                level: "A1",
+                question: "Choisissez la phrase correcte :",
+                options: ["I have 25 years old", "I am 25 years old", "I have 25 years", "I am 25 years"],
+                correct: 1,
+                points: 2
+            },
+            
+            // A2 (Pré-intermédiaire)
+            {
+                level: "A2",
+                question: "What did you do yesterday?",
+                options: ["I go to the cinema", "I went to the cinema", "I have gone to the cinema", "I was going to the cinema"],
+                correct: 1,
+                points: 3
+            },
+            {
+                level: "A2",
+                question: "Choose the correct sentence:",
+                options: ["There is many people here", "There are much people here", "There are many people here", "There is much people here"],
+                correct: 2,
+                points: 3
+            },
+            {
+                level: "A2",
+                question: "How do you express future plans?",
+                options: ["I will go tomorrow", "I am going tomorrow", "I go tomorrow", "I shall go tomorrow"],
+                correct: 1,
+                points: 3
+            },
+            
+            // B1 (Intermédiaire)
+            {
+                level: "B1",
+                question: "If I __ you, I would accept the offer.",
+                options: ["am", "was", "were", "will be"],
+                correct: 2,
+                points: 4
+            },
+            {
+                level: "B1",
+                question: "She has been working here __ five years.",
+                options: ["since", "for", "during", "from"],
+                correct: 1,
+                points: 4
+            },
+            {
+                level: "B1",
+                question: "Choose the most natural response: 'How about getting a coffee?'",
+                options: ["Yes, I drink coffee", "That sounds great!", "I like coffee very much", "Coffee is good"],
+                correct: 1,
+                points: 4
+            },
+            
+            // B2 (Intermédiaire-avancé)
+            {
+                level: "B2",
+                question: "The meeting __ by the time you arrive.",
+                options: ["will finish", "will be finishing", "will have finished", "is finishing"],
+                correct: 2,
+                points: 5
+            },
+            {
+                level: "B2",
+                question: "She suggested __ the project deadline.",
+                options: ["to postpone", "postponing", "postpone", "postponed"],
+                correct: 1,
+                points: 5
+            },
+            {
+                level: "B2",
+                question: "Despite __ hard, he didn't pass the exam.",
+                options: ["study", "studying", "to study", "studied"],
+                correct: 1,
+                points: 5
+            },
+            
+            // C1 (Avancé)
+            {
+                level: "C1",
+                question: "The company's profits have been __ declining over the past quarter.",
+                options: ["considerably", "considerably much", "considerable", "much considerable"],
+                correct: 0,
+                points: 6
+            },
+            {
+                level: "C1",
+                question: "__ the weather, the event was a great success.",
+                options: ["Despite of", "In spite", "Notwithstanding", "Although"],
+                correct: 2,
+                points: 6
+            },
+            {
+                level: "C1",
+                question: "The proposal __ careful consideration before implementation.",
+                options: ["requires", "is requiring", "has required", "will be requiring"],
+                correct: 0,
+                points: 6
+            },
+            
+            // C2 (Maîtrise)
+            {
+                level: "C2",
+                question: "The subtle __ in her argument made it particularly compelling.",
+                options: ["nuances", "differences", "changes", "variations"],
+                correct: 0,
+                points: 7
+            },
+            {
+                level: "C2",
+                question: "Had she __ the implications, she would never have agreed.",
+                options: ["understand", "understood", "understanding", "to understand"],
+                correct: 1,
+                points: 7
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let totalScore = 0;
+        let quizStarted = false;
+        let userData = {};
+        
+        // Descriptions des niveaux CECR
+        const levelDescriptions = {
+            "A0": {
+                title: "Débutant absolu",
+                description: "Vous commencez à apprendre vos premiers mots en anglais. Vous pouvez comprendre et utiliser des expressions familières et quotidiennes ainsi que des énoncés très simples.",
+                example: "Coffee? (Café ?)"
+            },
+            "A1": {
+                title: "Élémentaire", 
+                description: "Vous pouvez comprendre et utiliser des expressions familières et quotidiennes ainsi que des énoncés très simples qui visent à satisfaire des besoins concrets.",
+                example: "Want coffee with me? (Tu veux un café avec moi ?)"
+            },
+            "A2": {
+                title: "Pré-intermédiaire",
+                description: "Vous pouvez communiquer lors de tâches simples et habituelles ne demandant qu'un échange d'informations simple et direct sur des sujets familiers.",
+                example: "Do you want to have coffee together? (Veux-tu prendre un café ensemble ?)"
+            },
+            "B1": {
+                title: "Intermédiaire",
+                description: "Vous pouvez comprendre les points essentiels quand un langage clair et standard est utilisé et s'il s'agit de sujets familiers concernant le travail, l'école, les loisirs, etc.",
+                example: "How about getting a coffee? (Que dirais-tu d'aller prendre un café ?)"
+            },
+            "B2": {
+                title: "Intermédiaire-avancé",
+                description: "Vous pouvez comprendre le contenu essentiel de sujets concrets ou abstraits dans un texte complexe, y compris une discussion technique dans votre spécialité.",
+                example: "Let's get a coffee, shall we? (Allons prendre un café, d'accord ?)"
+            },
+            "C1": {
+                title: "Avancé", 
+                description: "Vous pouvez comprendre une grande gamme de textes longs et exigeants, ainsi que saisir des significations implicites.",
+                example: "Let's grab a coffee! (Allons prendre un café !)"
+            },
+            "C2": {
+                title: "Maîtrise",
+                description: "Vous pouvez comprendre sans effort pratiquement tout ce que vous lisez ou entendez et vous exprimer spontanément, très couramment et de façon précise.",
+                example: "Coffee? (Usage contextuel parfait)"
+            }
+        };
+        
+        function startQuiz() {
+            // Valider les champs obligatoires
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!firstName || !lastName || !email) {
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+            
+            // Valider l'email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Veuillez entrer une adresse email valide.');
+                return;
+            }
+            
+            // Sauvegarder les données utilisateur
+            userData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: document.getElementById('phone').value.trim(),
+                startTime: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+            
+            // Masquer l'écran d'accueil et afficher le quiz
+            document.getElementById('welcome').style.display = 'none';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('navigation').style.display = 'flex';
+            
+            quizStarted = true;
+            showQuestion(0);
+        }
+        
+        function showQuestion(index) {
+            currentQuestion = index;
+            
+            // Mettre à jour la barre de progression
+            const progress = ((index) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Mettre à jour le compteur
+            document.getElementById('questionCounter').textContent = `Question ${index + 1} sur ${questions.length}`;
+            
+            // Générer la question
+            const question = questions[index];
+            const quizContainer = document.getElementById('quizContainer');
+            
+            quizContainer.innerHTML = `
+                <div class="question-container active">
+                    <div class="question">
+                        <div class="level-indicator">Niveau ${question.level}</div>
+                        <h3>${question.question}</h3>
+                        <div class="options">
+                            ${question.options.map((option, i) => `
+                                <div class="option" onclick="selectOption(${i})">
+                                    <input type="radio" name="q${index}" value="${i}" id="q${index}_${i}">
+                                    <label for="q${index}_${i}">${option}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Restaurer la réponse précédente si elle existe
+            if (userAnswers[index] !== undefined) {
+                selectOption(userAnswers[index]);
+            }
+            
+            // Mettre à jour les boutons de navigation
+            document.getElementById('prevBtn').style.display = index > 0 ? 'inline-block' : 'none';
+            document.getElementById('nextBtn').textContent = index === questions.length - 1 ? 'Terminer' : 'Suivant →';
+        }
+        
+        function selectOption(optionIndex) {
+            // Déselectionner toutes les options
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Sélectionner l'option cliquée
+            options[optionIndex].classList.add('selected');
+            const radio = options[optionIndex].querySelector('input[type="radio"]');
+            radio.checked = true;
+            
+            // Sauvegarder la réponse
+            userAnswers[currentQuestion] = optionIndex;
+        }
+        
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === undefined) {
+                alert('Veuillez sélectionner une réponse avant de continuer.');
+                return;
+            }
+            
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                finishQuiz();
+            }
+        }
+        
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+        
+        function finishQuiz() {
+            // Calculer le score
+            totalScore = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    totalScore += questions[i].points;
+                }
+            }
+            
+            // Déterminer le niveau
+            const level = determineLevel(totalScore);
+            
+            // Sauvegarder les résultats
+            const results = {
+                ...userData,
+                answers: userAnswers,
+                score: totalScore,
+                level: level,
+                completionTime: new Date().toISOString(),
+                questionsAnswered: questions.length
+            };
+            
+            // Sauvegarder dans localStorage (pour récupération)
+            saveResults(results);
+            
+            // Afficher les résultats
+            showResults(level);
+        }
+        
+        function determineLevel(score) {
+            // Logique de calcul du niveau basée sur le score
+            if (score <= 3) return "A0";
+            if (score <= 8) return "A1";
+            if (score <= 15) return "A2";
+            if (score <= 23) return "B1";
+            if (score <= 32) return "B2";
+            if (score <= 40) return "C1";
+            return "C2";
+        }
+        
+        function showResults(level) {
+            // Masquer le quiz et afficher les résultats
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('navigation').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+            
+            // Afficher le niveau et la description
+            const levelInfo = levelDescriptions[level];
+            document.getElementById('finalLevel').textContent = `Niveau ${level}`;
+            document.getElementById('levelTitle').textContent = levelInfo.title;
+            document.getElementById('levelDescription').innerHTML = `
+                <h4>Votre niveau en détail :</h4>
+                <p>${levelInfo.description}</p>
+                <br>
+                <p><strong>Exemple d'expression :</strong> <em>"${levelInfo.example}"</em></p>
+                <br>
+                <p><strong>Votre score :</strong> ${totalScore} points sur ${questions.reduce((sum, q) => sum + q.points, 0)} possibles</p>
+            `;
+            
+            // Faire défiler vers le haut
+            window.scrollTo(0, 0);
+        }
+        
+        function saveResults(results) {
+            // Sauvegarder dans localStorage
+            const existingResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+            existingResults.push(results);
+            localStorage.setItem('quizResults', JSON.stringify(existingResults));
+            
+            // Ici, vous pourrez plus tard ajouter l'envoi vers votre serveur
+            console.log('Résultats sauvegardés:', results);
+        }
+        
+        function restartQuiz() {
+            // Réinitialiser toutes les variables
+            currentQuestion = 0;
+            userAnswers = [];
+            totalScore = 0;
+            quizStarted = false;
+            userData = {};
+            
+            // Réinitialiser l'interface
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('welcome').style.display = 'block';
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('navigation').style.display = 'none';
+            
+            // Vider les champs
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            
+            // Faire défiler vers le haut
+            window.scrollTo(0, 0);
+        }
+        
+        // Fonction pour récupérer tous les résultats (pour l'administrateur)
+        function getAllResults() {
+            return JSON.parse(localStorage.getItem('quizResults') || '[]');
+        }
+        
+        // Fonction pour exporter les résultats en CSV
+        function exportResults() {
+            const results = getAllResults();
+            if (results.length === 0) {
+                alert('Aucun résultat à exporter.');
+                return;
+            }
+            
+            const headers = ['Date', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Niveau', 'Score', 'Durée'];
+            const csvContent = [
+                headers.join(','),
+                ...results.map(result => {
+                    const duration = new Date(result.completionTime).getTime() - new Date(result.startTime).getTime();
+                    const durationMinutes = Math.round(duration / 60000);
+                    return [
+                        new Date(result.completionTime).toLocaleDateString('fr-FR'),
+                        result.firstName,
+                        result.lastName,
+                        result.email,
+                        result.phone || '',
+                        result.level,
+                        result.score,
+                        durationMinutes + ' min'
+                    ].join(',');
+                })
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'resultats_quiz_' + new Date().toISOString().slice(0,10) + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Raccourci clavier pour exporter (pour l'administrateur)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+                exportResults();
+            }
+        });
+    </script>
+</body>
+</html>
