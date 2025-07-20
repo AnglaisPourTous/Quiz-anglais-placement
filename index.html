@@ -119,16 +119,6 @@
             font-size: 1.3em;
         }
         
-        .level-indicator {
-            background: #667eea;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-        
         .options {
             display: grid;
             gap: 15px;
@@ -417,144 +407,186 @@
             emailjs.init(EMAILJS_PUBLIC_KEY);
         }
         
-        // Questions du quiz organisées par niveau CECR
+        // Questions du quiz organisées par niveau CECR - Difficulté augmentée
         const questions = [
-            // A0-A1 (Débutant absolu/Élémentaire)
+            // A1 (Questions niveau A2 pour tester A1)
             {
-                level: "A0-A1",
-                question: "Comment dit-on 'Bonjour' en anglais ?",
-                options: ["Good morning", "Good night", "Good afternoon", "Goodbye"],
-                correct: 0,
-                points: 1
-            },
-            {
-                level: "A0-A1", 
-                question: "Complétez : 'My name __ John'",
-                options: ["am", "is", "are", "be"],
+                level: "A1",
+                question: "Where __ you yesterday at 3 PM?",
+                options: ["was", "were", "are", "did"],
                 correct: 1,
                 points: 1
             },
             {
                 level: "A1",
-                question: "Quelle est la bonne question pour demander l'âge ?",
-                options: ["How old you are?", "What is your age?", "How old are you?", "How many years do you have?"],
-                correct: 2,
-                points: 2
+                question: "I can't find my keys. Have you seen __?",
+                options: ["it", "them", "they", "their"],
+                correct: 1,
+                points: 1
             },
             {
                 level: "A1",
-                question: "Choisissez la phrase correcte :",
-                options: ["I have 25 years old", "I am 25 years old", "I have 25 years", "I am 25 years"],
+                question: "She __ to the gym twice a week.",
+                options: ["go", "goes", "going", "is go"],
+                correct: 1,
+                points: 1
+            },
+            {
+                level: "A1",
+                question: "Choose the correct negative form: 'He speaks English.'",
+                options: ["He don't speak English", "He doesn't speak English", "He not speak English", "He doesn't speaks English"],
+                correct: 1,
+                points: 1
+            },
+            
+            // A2 (Questions niveau B1 pour tester A2)
+            {
+                level: "A2",
+                question: "I've lived in Paris __ 2018.",
+                options: ["for", "since", "from", "during"],
                 correct: 1,
                 points: 2
             },
-            
-            // A2 (Pré-intermédiaire)
             {
                 level: "A2",
-                question: "What did you do yesterday?",
-                options: ["I go to the cinema", "I went to the cinema", "I have gone to the cinema", "I was going to the cinema"],
+                question: "If it __ tomorrow, we'll cancel the picnic.",
+                options: ["rain", "rains", "will rain", "raining"],
                 correct: 1,
-                points: 3
+                points: 2
             },
             {
                 level: "A2",
-                question: "Choose the correct sentence:",
-                options: ["There is many people here", "There are much people here", "There are many people here", "There is much people here"],
-                correct: 2,
-                points: 3
-            },
-            {
-                level: "A2",
-                question: "How do you express future plans?",
-                options: ["I will go tomorrow", "I am going tomorrow", "I go tomorrow", "I shall go tomorrow"],
-                correct: 1,
-                points: 3
-            },
-            
-            // B1 (Intermédiaire)
-            {
-                level: "B1",
-                question: "If I __ you, I would accept the offer.",
-                options: ["am", "was", "were", "will be"],
-                correct: 2,
-                points: 4
-            },
-            {
-                level: "B1",
-                question: "She has been working here __ five years.",
-                options: ["since", "for", "during", "from"],
-                correct: 1,
-                points: 4
-            },
-            {
-                level: "B1",
-                question: "Choose the most natural response: 'How about getting a coffee?'",
-                options: ["Yes, I drink coffee", "That sounds great!", "I like coffee very much", "Coffee is good"],
-                correct: 1,
-                points: 4
-            },
-            
-            // B2 (Intermédiaire-avancé)
-            {
-                level: "B2",
-                question: "The meeting __ by the time you arrive.",
-                options: ["will finish", "will be finishing", "will have finished", "is finishing"],
-                correct: 2,
-                points: 5
-            },
-            {
-                level: "B2",
-                question: "She suggested __ the project deadline.",
-                options: ["to postpone", "postponing", "postpone", "postponed"],
-                correct: 1,
-                points: 5
-            },
-            {
-                level: "B2",
-                question: "Despite __ hard, he didn't pass the exam.",
-                options: ["study", "studying", "to study", "studied"],
-                correct: 1,
-                points: 5
-            },
-            
-            // C1 (Avancé)
-            {
-                level: "C1",
-                question: "The company's profits have been __ declining over the past quarter.",
-                options: ["considerably", "considerably much", "considerable", "much considerable"],
+                question: "This book is __ than the one I read last week.",
+                options: ["more interesting", "most interesting", "more interested", "the most interesting"],
                 correct: 0,
-                points: 6
+                points: 2
             },
             {
-                level: "C1",
-                question: "__ the weather, the event was a great success.",
-                options: ["Despite of", "In spite", "Notwithstanding", "Although"],
+                level: "A2",
+                question: "He asked me where __.",
+                options: ["do I live", "I live", "I lived", "did I live"],
                 correct: 2,
-                points: 6
-            },
-            {
-                level: "C1",
-                question: "The proposal __ careful consideration before implementation.",
-                options: ["requires", "is requiring", "has required", "will be requiring"],
-                correct: 0,
-                points: 6
+                points: 2
             },
             
-            // C2 (Maîtrise)
+            // B1 (Questions niveau B2 pour tester B1)
+            {
+                level: "B1",
+                question: "By next month, I __ here for exactly three years.",
+                options: ["will work", "will have been working", "am working", "have worked"],
+                correct: 1,
+                points: 3
+            },
+            {
+                level: "B1",
+                question: "I wish I __ more time to finish this project.",
+                options: ["have", "had", "would have", "having"],
+                correct: 1,
+                points: 3
+            },
+            {
+                level: "B1",
+                question: "The manager insisted that everyone __ the meeting.",
+                options: ["attends", "attend", "attended", "to attend"],
+                correct: 1,
+                points: 3
+            },
+            {
+                level: "B1",
+                question: "__ having a cold, she went to work.",
+                options: ["Although", "Despite", "However", "Even"],
+                correct: 1,
+                points: 3
+            },
+            
+            // B2 (Questions niveau C1 pour tester B2)
+            {
+                level: "B2",
+                question: "Little __ that his invention would change the world.",
+                options: ["he knew", "did he know", "he did know", "knew he"],
+                correct: 1,
+                points: 4
+            },
+            {
+                level: "B2",
+                question: "The report needs __ before the deadline.",
+                options: ["to submit", "submitting", "to be submitted", "being submitted"],
+                correct: 2,
+                points: 4
+            },
+            {
+                level: "B2",
+                question: "Not until the sun set __ the temperature drop.",
+                options: ["did", "had", "was", "has"],
+                correct: 0,
+                points: 4
+            },
+            {
+                level: "B2",
+                question: "The committee is divided __ the issue of budget allocation.",
+                options: ["over", "about", "on", "for"],
+                correct: 0,
+                points: 4
+            },
+            
+            // C1 (Questions niveau C2 pour tester C1)
+            {
+                level: "C1",
+                question: "The evidence was __, leaving no doubt about the verdict.",
+                options: ["irrefutable", "irresponsible", "irreversible", "irregular"],
+                correct: 0,
+                points: 5
+            },
+            {
+                level: "C1",
+                question: "__ the CEO's objections, the board approved the merger.",
+                options: ["Nevertheless", "Notwithstanding", "Whereas", "Albeit"],
+                correct: 1,
+                points: 5
+            },
+            {
+                level: "C1",
+                question: "The senator's speech was full of __ remarks about his opponents.",
+                options: ["derogatory", "derivative", "deliberate", "delectable"],
+                correct: 0,
+                points: 5
+            },
+            {
+                level: "C1",
+                question: "Were it not __ the support of my colleagues, I wouldn't have succeeded.",
+                options: ["to", "for", "with", "by"],
+                correct: 1,
+                points: 5
+            },
+            
+            // C2 (Questions très difficiles pour tester C2)
             {
                 level: "C2",
-                question: "The subtle __ in her argument made it particularly compelling.",
-                options: ["nuances", "differences", "changes", "variations"],
-                correct: 0,
-                points: 7
+                question: "The author's __ style made the text almost impenetrable.",
+                options: ["perspicuous", "perspicacious", "perfidious", "prolix"],
+                correct: 3,
+                points: 6
             },
             {
                 level: "C2",
-                question: "Had she __ the implications, she would never have agreed.",
-                options: ["understand", "understood", "understanding", "to understand"],
-                correct: 1,
-                points: 7
+                question: "So __ was her argument that even her detractors were swayed.",
+                options: ["cogent", "complacent", "corpulent", "clandestine"],
+                correct: 0,
+                points: 6
+            },
+            {
+                level: "C2",
+                question: "The diplomat's __ prevented an international incident.",
+                options: ["sangfroid", "schadenfreude", "zeitgeist", "wanderlust"],
+                correct: 0,
+                points: 6
+            },
+            {
+                level: "C2",
+                question: "The new policy is __ to our previous approach.",
+                options: ["antithetical", "apocryphal", "anachronistic", "anodyne"],
+                correct: 0,
+                points: 6
             }
         ];
         
@@ -689,7 +721,6 @@
             quizContainer.innerHTML = `
                 <div class="question-container active">
                     <div class="question">
-                        <div class="level-indicator">Niveau ${question.level}</div>
                         <h3>${question.question}</h3>
                         <div class="options">
                             ${question.options.map((option, i) => `
@@ -1133,21 +1164,21 @@ Système automatique Quiz Anglais
         }
         
         function determineLevel(score) {
-            // Logique de calcul du niveau basée sur le score (18 questions, max 74 points)
-            // Seuils ajustés pour correspondre au score maximum réel
-            if (score <= 2) return "A0";        // 0-2 points
-            if (score <= 6) return "A1";        // 3-6 points  
-            if (score <= 9) return "A2.1";      // 7-9 points
-            if (score <= 12) return "A2.2";     // 10-12 points
-            if (score <= 15) return "A2.3";     // 13-15 points
-            if (score <= 22) return "B1.1";     // 16-22 points
-            if (score <= 29) return "B1.2";     // 23-29 points
-            if (score <= 36) return "B1.3";     // 30-36 points
-            if (score <= 45) return "B2.1";     // 37-45 points
-            if (score <= 54) return "B2.2";     // 46-54 points
-            if (score <= 63) return "B2.3";     // 55-63 points
-            if (score <= 70) return "C1.1";     // 64-70 points
-            return "C2";                        // 71-74 points
+            // Logique de calcul du niveau basée sur le score (24 questions, max 84 points)
+            // Seuils stricts pour que le résultat soit environ un niveau en dessous du niveau réel
+            if (score <= 3) return "A0";        // 0-3 points (moins de 75% du niveau A1)
+            if (score <= 7) return "A1";        // 4-7 points (a réussi niveau A1 mais pas A2)
+            if (score <= 14) return "A2.1";     // 8-14 points
+            if (score <= 21) return "A2.2";     // 15-21 points
+            if (score <= 28) return "A2.3";     // 22-28 points
+            if (score <= 38) return "B1.1";     // 29-38 points
+            if (score <= 48) return "B1.2";     // 39-48 points
+            if (score <= 58) return "B1.3";     // 49-58 points
+            if (score <= 66) return "B2.1";     // 59-66 points
+            if (score <= 74) return "B2.2";     // 67-74 points
+            if (score <= 78) return "B2.3";     // 75-78 points
+            if (score <= 82) return "C1.1";     // 79-82 points
+            return "C2";                        // 83-84 points (quasi-parfait requis pour C2)
         }
         
         function showResults(level) {
