@@ -1168,16 +1168,17 @@ Système automatique Quiz Anglais
             // Seuils stricts pour que le résultat soit environ un niveau en dessous du niveau réel
             if (score <= 3) return "A0";        // 0-3 points (moins de 75% du niveau A1)
             if (score <= 7) return "A1";        // 4-7 points (a réussi niveau A1 mais pas A2)
-            if (score <= 14) return "A2.1";     // 8-14 points
-            if (score <= 21) return "A2.2";     // 15-21 points
-            if (score <= 28) return "A2.3";     // 22-28 points
-            if (score <= 38) return "B1.1";     // 29-38 points
-            if (score <= 48) return "B1.2";     // 39-48 points
-            if (score <= 58) return "B1.3";     // 49-58 points
-            if (score <= 66) return "B2.1";     // 59-66 points
-            if (score <= 74) return "B2.2";     // 67-74 points
-            if (score <= 78) return "B2.3";     // 75-78 points
-            if (score <= 82) return "C1.1";     // 79-82 points
+            if (score <= 13) return "A2.1";     // 8-14 points
+            if (score <= 20) return "A2.2";     // 15-21 points
+            if (score <= 26) return "A2.3";     // 22-28 points
+            if (score <= 34) return "B1.1";     // 29-38 points
+            if (score <= 44) return "B1.2";     // 39-48 points
+            if (score <= 55) return "B1.3";     // 49-58 points
+            if (score <= 65) return "B2.1";     // 59-66 points
+            if (score <= 72) return "B2.2";     // 67-74 points
+            if (score <= 76) return "B2.3";     // 75-78 points
+            if (score <= 80) return "C1.1";     // 79-82 points
+            if (score <= 82) return "C1.2";     // 81-81 points
             return "C2";                        // 83-84 points (quasi-parfait requis pour C2)
         }
         
