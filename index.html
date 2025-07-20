@@ -1133,20 +1133,21 @@ Système automatique Quiz Anglais
         }
         
         function determineLevel(score) {
-            // Logique de calcul du niveau basée sur le score (25 questions, max ~140 points)
-            if (score <= 4) return "A0";
-            if (score <= 8) return "A1";
-            if (score <= 18) return "A2.1";
-            if (score <= 28) return "A2.2";
-            if (score <= 38) return "A2.3";
-            if (score <= 53) return "B1.1";
-            if (score <= 68) return "B1.2";
-            if (score <= 83) return "B1.3";
-            if (score <= 98) return "B2.1";
-            if (score <= 113) return "B2.2";
-            if (score <= 128) return "B2.3";
-            if (score <= 135) return "C1.1";
-            return "C2";
+            // Logique de calcul du niveau basée sur le score (18 questions, max 74 points)
+            // Seuils ajustés pour correspondre au score maximum réel
+            if (score <= 2) return "A0";        // 0-2 points
+            if (score <= 6) return "A1";        // 3-6 points  
+            if (score <= 9) return "A2.1";      // 7-9 points
+            if (score <= 12) return "A2.2";     // 10-12 points
+            if (score <= 15) return "A2.3";     // 13-15 points
+            if (score <= 22) return "B1.1";     // 16-22 points
+            if (score <= 29) return "B1.2";     // 23-29 points
+            if (score <= 36) return "B1.3";     // 30-36 points
+            if (score <= 45) return "B2.1";     // 37-45 points
+            if (score <= 54) return "B2.2";     // 46-54 points
+            if (score <= 63) return "B2.3";     // 55-63 points
+            if (score <= 70) return "C1.1";     // 64-70 points
+            return "C2";                        // 71-74 points
         }
         
         function showResults(level) {
@@ -1176,7 +1177,7 @@ Système automatique Quiz Anglais
                 <p><strong>Exemple d'expression typique :</strong> <em>"${levelInfo.example}"</em></p>
                 <br>
                 <p><strong>Votre score :</strong> ${totalScore} points sur ${questions.reduce((sum, q) => sum + q.points, 0)} possibles (${Math.round((totalScore / questions.reduce((sum, q) => sum + q.points, 0)) * 100)}%)</p>
-                <p><strong>Questions répondues :</strong> ${questions.length}/25</p>
+                <p><strong>Questions répondues :</strong> ${questions.length}/${questions.length}</p>
             `;
             
             // Faire défiler vers le haut
@@ -1349,7 +1350,7 @@ Système automatique Quiz Anglais
             }
             
             if (emailElement) {
-                emailElement.textContent = ADMIN_EMAIL !== 'votre-email@exemple.com' ? ADMIN_EMAIL : 'Non configuré';
+                emailElement.textContent = ADMIN_EMAIL || 'Non configuré';
             }
             
             if (countElement) {
@@ -1386,9 +1387,17 @@ Système automatique Quiz Anglais
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey) {
                 switch(e.key) {
+                    case 'S': // Ctrl+Shift+S = Envoyer Excel par email
+                        e.preventDefault();
+                        sendExcelByEmail();
+                        break;
                     case 'E': // Ctrl+Shift+E = Export Excel
                         e.preventDefault();
                         exportAllToExcel();
+                        break;
+                    case 'T': // Ctrl+Shift+T = Test email
+                        e.preventDefault();
+                        testEmailConnection();
                         break;
                     case 'C': // Ctrl+Shift+C = Export CSV
                         e.preventDefault();
