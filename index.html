@@ -216,6 +216,42 @@
             background: #e2e8f0;
         }
         
+        /* Styles pour le téléphone avec pays */
+        .phone-container {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+        
+        .country-select {
+            width: auto;
+            min-width: 140px;
+            padding: 16px 15px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-size: 16px;
+            background: #f1f5f9;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .country-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .country-select:hover {
+            background: #e2e8f0;
+        }
+        
+        .phone-input {
+            flex: 1;
+        }
+        
         .question-container {
             display: none;
             animation: slideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -652,6 +688,15 @@
                 width: 100%;
                 max-width: 300px;
             }
+            
+            .phone-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .country-select {
+                width: 100%;
+            }
         }
         
         /* Smooth scrolling */
@@ -708,7 +753,33 @@
                 
                 <div class="form-group">
                     <label for="phone">Téléphone</label>
-                    <input type="tel" id="phone">
+                    <div class="phone-container">
+                        <select id="countryCode" class="country-select">
+                            <option value="+33">🇫🇷 +33 France</option>
+                            <option value="+32">🇧🇪 +32 Belgique</option>
+                            <option value="+41">🇨🇭 +41 Suisse</option>
+                            <option value="+1">🇺🇸 +1 États-Unis</option>
+                            <option value="+1">🇨🇦 +1 Canada</option>
+                            <option value="+44">🇬🇧 +44 Royaume-Uni</option>
+                            <option value="+49">🇩🇪 +49 Allemagne</option>
+                            <option value="+39">🇮🇹 +39 Italie</option>
+                            <option value="+34">🇪🇸 +34 Espagne</option>
+                            <option value="+31">🇳🇱 +31 Pays-Bas</option>
+                            <option value="+351">🇵🇹 +351 Portugal</option>
+                            <option value="+212">🇲🇦 +212 Maroc</option>
+                            <option value="+213">🇩🇿 +213 Algérie</option>
+                            <option value="+216">🇹🇳 +216 Tunisie</option>
+                            <option value="+225">🇨🇮 +225 Côte d'Ivoire</option>
+                            <option value="+221">🇸🇳 +221 Sénégal</option>
+                            <option value="+237">🇨🇲 +237 Cameroun</option>
+                            <option value="+230">🇲🇺 +230 Maurice</option>
+                            <option value="+33">🇬🇵 +33 Guadeloupe</option>
+                            <option value="+33">🇲🇶 +33 Martinique</option>
+                            <option value="+262">🇷🇪 +262 Réunion</option>
+                            <option value="+590">🇬🇵 +590 Saint-Martin</option>
+                        </select>
+                        <input type="tel" id="phone" class="phone-input" placeholder="123 456 789">
+                    </div>
                 </div>
                 
                 <button class="btn" onclick="startQuiz()">Commencer le Quiz</button>
@@ -1084,12 +1155,17 @@
                 return;
             }
             
+            // Récupérer le téléphone avec code pays
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneNumber = document.getElementById('phone').value.trim();
+            const fullPhone = phoneNumber ? `${countryCode} ${phoneNumber}` : '';
+            
             // Sauvegarder les données utilisateur
             userData = {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
-                phone: document.getElementById('phone').value.trim(),
+                phone: fullPhone,
                 startTime: new Date().toISOString(),
                 userAgent: navigator.userAgent
             };
@@ -1657,6 +1733,7 @@ Système automatique Quiz Anglais
             document.getElementById('lastName').value = '';
             document.getElementById('email').value = '';
             document.getElementById('phone').value = '';
+            document.getElementById('countryCode').value = '+33';
             
             // Faire défiler vers le haut
             window.scrollTo(0, 0);
