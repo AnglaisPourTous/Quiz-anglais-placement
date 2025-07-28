@@ -1142,6 +1142,7 @@
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phone').value.trim();
             
             if (!firstName || !lastName || !email) {
                 alert('Veuillez remplir tous les champs obligatoires.');
@@ -1155,10 +1156,15 @@
                 return;
             }
             
+            // Valider que le téléphone contient au moins un chiffre
+            if (!phoneNumber || !/\d/.test(phoneNumber)) {
+                alert('Veuillez saisir au moins un numéro de téléphone.');
+                return;
+            }
+            
             // Récupérer le téléphone avec code pays
             const countryCode = document.getElementById('countryCode').value;
-            const phoneNumber = document.getElementById('phone').value.trim();
-            const fullPhone = phoneNumber ? `${countryCode} ${phoneNumber}` : '';
+            const fullPhone = `${countryCode} ${phoneNumber}`;
             
             // Sauvegarder les données utilisateur
             userData = {
